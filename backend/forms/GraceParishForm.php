@@ -2,7 +2,7 @@
 /**
  * GraceParishForm — handles submissions from the Grace parish form.
  *
- * Fields: parish name, shepherd's name, phone number, city, county (optional), state, country.
+ * Fields: parish name, shepherd's name, phone number, email, city, county (optional), state, country.
  * Rows land in the `grace_parishes` table
  * (backend/migrations/2026_10_grace_parishes.sql).
  *
@@ -25,6 +25,7 @@ final class GraceParishForm
         'parish_name'   => [true, 200],
         'shepherd_name' => [true, 200],
         'phone'         => [true, 30],
+        'email'         => [true, 254],
         'city'          => [true, 120],
         'county'        => [false, 120],
         'state'         => [true, 120],
@@ -59,9 +60,9 @@ final class GraceParishForm
 
         $stmt = $this->pdo->prepare(
             'INSERT INTO grace_parishes
-                 (parish_name, shepherd_name, phone, city, county, state, country, submitter_ip)
+                 (parish_name, shepherd_name, phone, email, city, county, state, country, submitter_ip)
              VALUES
-                 (:parish_name, :shepherd_name, :phone, :city, :county, :state, :country, :ip)'
+                 (:parish_name, :shepherd_name, :phone, :email, :city, :county, :state, :country, :ip)'
         );
         $stmt->execute($data + ['ip' => $_SERVER['REMOTE_ADDR'] ?? null]);
 
@@ -95,6 +96,11 @@ final class GraceParishForm
             if (!preg_match('/^\+?[\d\s().-]+$/', $phone) || strlen($digits) < 7 || strlen($digits) > 15) {
                 $errors['phone'] = 'Enter a valid phone number.';
             }
+        }
+
+        $email = $data['email'] ?? null;
+        if ($email !== null && !isset($errors['email']) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Enter a valid email address.';
         }
         return [$data, $errors];
     }
