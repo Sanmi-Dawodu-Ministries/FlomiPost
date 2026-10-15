@@ -100,6 +100,13 @@
         <div class="error" data-for="shepherd_name"></div>
       </div>
 
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input id="phone" name="phone" type="tel" required maxlength="30" autocomplete="tel"
+               placeholder="+234 803 123 4567">
+        <div class="error" data-for="phone"></div>
+      </div>
+
       <div class="row">
         <div class="field">
           <label for="city">City</label>
@@ -159,6 +166,12 @@
       form.querySelectorAll('input[required]').forEach(function (input) {
         if (!data[input.name]) errors[input.name] = 'This field is required.';
       });
+      if (data.phone && !errors.phone) {
+        var digits = data.phone.replace(/\D/g, '');
+        if (!/^\+?[\d\s().-]+$/.test(data.phone) || digits.length < 7 || digits.length > 15) {
+          errors.phone = 'Enter a valid phone number.';
+        }
+      }
       return errors;
     }
 

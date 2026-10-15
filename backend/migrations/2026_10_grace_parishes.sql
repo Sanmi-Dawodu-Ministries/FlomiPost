@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS grace_parishes (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     parish_name   VARCHAR(200)    NOT NULL,
     shepherd_name VARCHAR(200)    NOT NULL,         -- pastor / shepherd in charge
+    phone         VARCHAR(30)     NOT NULL,         -- as entered, e.g. +234 803 123 4567
     city          VARCHAR(120)    NOT NULL,
     county        VARCHAR(120)    NULL,             -- optional: not every place has one
     state         VARCHAR(120)    NOT NULL,         -- state / province / region

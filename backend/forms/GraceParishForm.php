@@ -2,7 +2,7 @@
 /**
  * GraceParishForm — handles submissions from the Grace parish form.
  *
- * Fields: parish name, shepherd's name, city, county (optional), state, country.
+ * Fields: parish name, shepherd's name, phone number, city, county (optional), state, country.
  * Rows land in the `grace_parishes` table
  * (backend/migrations/2026_10_grace_parishes.sql).
  *
@@ -24,6 +24,7 @@ final class GraceParishForm
     private const FIELDS = [
         'parish_name'   => [true, 200],
         'shepherd_name' => [true, 200],
+        'phone'         => [true, 30],
         'city'          => [true, 120],
         'county'        => [false, 120],
         'state'         => [true, 120],
@@ -58,9 +59,9 @@ final class GraceParishForm
 
         $stmt = $this->pdo->prepare(
             'INSERT INTO grace_parishes
-                 (parish_name, shepherd_name, city, county, state, country, submitter_ip)
+                 (parish_name, shepherd_name, phone, city, county, state, country, submitter_ip)
              VALUES
-                 (:parish_name, :shepherd_name, :city, :county, :state, :country, :ip)'
+                 (:parish_name, :shepherd_name, :phone, :city, :county, :state, :country, :ip)'
         );
         $stmt->execute($data + ['ip' => $_SERVER['REMOTE_ADDR'] ?? null]);
 
@@ -85,6 +86,15 @@ final class GraceParishForm
                 $errors[$field] = "Must be {$max} characters or fewer.";
             }
             $data[$field] = $value;
+        }
+
+        // Phone: digits plus common separators, with 7–15 digits (E.164 max).
+        $phone = $data['phone'] ?? null;
+        if ($phone !== null && !isset($errors['phone'])) {
+            $digits = preg_replace('/\D/', '', $phone);
+            if (!preg_match('/^\+?[\d\s().-]+$/', $phone) || strlen($digits) < 7 || strlen($digits) > 15) {
+                $errors['phone'] = 'Enter a valid phone number.';
+            }
         }
         return [$data, $errors];
     }
